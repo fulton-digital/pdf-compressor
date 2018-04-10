@@ -8,11 +8,19 @@ import (
 	"os"
 	"strings"
 	"path"
+	"runtime"
 )
 
 func main() {
 
-	_, err := exec.LookPath("gs")
+	var gsExecName string
+	if runtime.GOOS == "windows" {
+		gsExecName = "gswin32c"
+	} else {
+		gsExecName = "gs"
+	}
+
+	_, err := exec.LookPath(gsExecName)
 	if err != nil {
 		log.Fatal("ghostscript is not installed")
 	}
@@ -22,7 +30,7 @@ func main() {
 	pathPtr := flag.String("i", "", "Path to the input file. REQUIRED")
 	// TODO: Add output file flag
 	sizePtr := flag.String("size", "medium", "Size of output file. Valid choices are small, medium, or large")
-	resize := flag.Bool("resize-output", true, "Whether to resize output or not. For presentation decks this should always be true.")
+	noResize := flag.Bool("no-resize", false, "Whether to resize output or not. For presentation decks this should always be omitted.")
 	aspectRatioX := flag.Float64("aspect-ratio-x", 16, "X aspect ratio. Defaults to 16:9.")
 	aspectRatioY := flag.Float64("aspect-ratio-y", 9, "Y aspect ratio. Defaults to 16:9.")
 	compatibilityLevelPtr := flag.String("compatibility-level", "1.7", "PDF Compatibility Level. Reduce if sharing broadly. 1.3 - 1.7 are supported.")
@@ -46,7 +54,7 @@ func main() {
 	args = append(args, "-dCompressPages=true")
 	args = append(args, "-dCompressFonts=true")
 
-	if *resize {
+	if !*noResize {
 		width := fmt.Sprintf("%d", WidthInPoints(*sizePtr, aspectRatio))
 		height := fmt.Sprintf("%d", HeightInPoints(*sizePtr, aspectRatio))
 
@@ -88,7 +96,7 @@ func main() {
 	args = append(args, "-dMonoImageDownsampleType=/Bicubic")
 	args = append(args, "-f", *pathPtr)
 
-	cmd := exec.Command("gs", args...)
+	cmd := exec.Command(gsExecName, args...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	cmd.Run()

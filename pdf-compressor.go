@@ -15,6 +15,7 @@ func main() {
 
 	var gsExecName string
 	if runtime.GOOS == "windows" {
+		// TODO: instead of relying on GOARCH, check to see if either exists. This won't work with a mismatched version of gs + pdfcompress
 		if runtime.GOARCH == "386" {
 			gsExecName = "gswin32c.exe"
 		} else {

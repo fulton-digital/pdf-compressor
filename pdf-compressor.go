@@ -15,7 +15,11 @@ func main() {
 
 	var gsExecName string
 	if runtime.GOOS == "windows" {
-		gsExecName = "gswin32c"
+		if runtime.GOARCH == "386" {
+			gsExecName = "gswin32c.exe"
+		} else {
+			gsExecName = "gswin64c.exe"
+		}
 	} else {
 		gsExecName = "gs"
 	}

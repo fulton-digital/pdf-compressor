@@ -2,12 +2,12 @@ package main
 
 import (
 	"flag"
-	"log"
-	"os/exec"
 	"fmt"
+	"log"
 	"os"
-	"strings"
+	"os/exec"
 	"path"
+	"strings"
 )
 
 func main() {
@@ -42,7 +42,7 @@ func main() {
 	args = append(args, "-o", OutputFileName(*pathPtr, *sizePtr))
 	args = append(args, "-sDEVICE=pdfwrite")
 	args = append(args, "-dDOINTERPOLATE")
-	args = append(args, "-dCompatibilityLevel=" + *compatibilityLevelPtr)
+	args = append(args, "-dCompatibilityLevel="+*compatibilityLevelPtr)
 	args = append(args, "-dCompressPages=true")
 	args = append(args, "-dCompressFonts=true")
 
@@ -50,8 +50,8 @@ func main() {
 		width := fmt.Sprintf("%d", WidthInPoints(*sizePtr, aspectRatio))
 		height := fmt.Sprintf("%d", HeightInPoints(*sizePtr, aspectRatio))
 
-		args = append(args, "-dDEVICEWIDTHPOINTS=" + width)
-		args = append(args, "-dDEVICEHEIGHTPOINTS=" + height)
+		args = append(args, "-dDEVICEWIDTHPOINTS="+width)
+		args = append(args, "-dDEVICEHEIGHTPOINTS="+height)
 		//args = append(args, "-dFIXEDMEDIA")
 		args = append(args, "-dFitPage")
 	}
@@ -76,9 +76,9 @@ func main() {
 	args = append(args, "-dDownsampleColorImages=true")
 	args = append(args, "-dDownsampleGrayImages=true")
 	args = append(args, "-dDownsampleMonoImages=true")
-	args = append(args, "-dColorImageResolution=" + dpi)
-	args = append(args, "-dGrayImageResolution=" + dpi)
-	args = append(args, "-dMonoImageResolution=" + dpi)
+	args = append(args, "-dColorImageResolution="+dpi)
+	args = append(args, "-dGrayImageResolution="+dpi)
+	args = append(args, "-dMonoImageResolution="+dpi)
 	args = append(args, "-dDetectDuplicateImages=true")
 	args = append(args, "-dColorImageDownsampleThreshold=1.0")
 	args = append(args, "-dGrayImageDownsampleThreshold=1.0")
@@ -96,49 +96,43 @@ func main() {
 
 func ValidatePath(pathStr string) {
 	if pathStr == "" {
-		fmt.Println("Please specify an input PDF file.")
 		flag.PrintDefaults()
-		os.Exit(1)
+		panic("Please specify an input PDF file.")
 	}
 }
 
 func ValidateFileExistsAndIsPdf(pathStr string) {
 	if _, err := os.Stat(pathStr); os.IsNotExist(err) {
-		fmt.Println("Input file does not exist.")
 		flag.PrintDefaults()
-		os.Exit(1)
+		panic("Input file does not exist.")
 	}
 	if strings.ToLower(path.Ext(pathStr)) != ".pdf" {
-		fmt.Println("Input file extension is not PDF.")
 		flag.PrintDefaults()
-		os.Exit(1)
+		panic("Input file extension is not PDF.")
 	}
 }
 
 func ValidateSizeString(sizeStr string) {
 	validSizes := []string{"small", "medium", "large"}
 	if !Contains(validSizes, strings.ToLower(sizeStr)) {
-		fmt.Println("Invalid size argument.")
 		flag.PrintDefaults()
-		os.Exit(1)
+		panic("Invalid size argument.")
 	}
 }
 
 func ValidateCompatibilityLevel(levelStr string) {
 	validLevels := []string{"1.3", "1.4", "1.5", "1.6", "1.7"}
 	if !Contains(validLevels, strings.ToLower(levelStr)) {
-		fmt.Println("Invalid compatibility level argument.")
 		flag.PrintDefaults()
-		os.Exit(1)
+		panic("Invalid compatibility level argument.")
 	}
 }
 
 func ValidateLossinessString(lossinessStr string) {
 	validConfigurations := []string{"lossy", "lossless"}
 	if !Contains(validConfigurations, strings.ToLower(lossinessStr)) {
-		fmt.Println("Invalid lossiness argument.")
 		flag.PrintDefaults()
-		os.Exit(1)
+		panic("Invalid lossiness argument.")
 	}
 }
 

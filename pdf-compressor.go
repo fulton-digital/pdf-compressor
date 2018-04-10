@@ -29,12 +29,12 @@ func main() {
 
 	pathPtr := flag.String("i", "", "Path to the input file. REQUIRED")
 	// TODO: Add output file flag
-	sizePtr := flag.String("size", "medium", "Size of output file. Valid choices are small, medium, or large")
-	noResize := flag.Bool("no-resize", false, "Whether to resize output or not. For presentation decks this should always be omitted.")
-	aspectRatioX := flag.Float64("aspect-ratio-x", 16, "X aspect ratio. Defaults to 16:9.")
-	aspectRatioY := flag.Float64("aspect-ratio-y", 9, "Y aspect ratio. Defaults to 16:9.")
-	compatibilityLevelPtr := flag.String("compatibility-level", "1.7", "PDF Compatibility Level. Reduce if sharing broadly. 1.3 - 1.7 are supported.")
-	lossinessPtr := flag.String("lossiness", "lossless", "Use Lossy or Lossless image compression. Lossy images are much smaller but tend to have compression artifacts.")
+	sizePtr := flag.String("s", "medium", "Size of output file. Valid choices are small, medium, or large")
+	noResize := flag.Bool("nr", false, "Do not resize output. For presentation decks this should always be omitted.")
+	aspectRatioX := flag.Float64("ar-x", 16, "X aspect ratio. Defaults to 16:9.")
+	aspectRatioY := flag.Float64("ar-y", 9, "Y aspect ratio. Defaults to 16:9.")
+	compatibilityLevelPtr := flag.String("cl", "1.7", "PDF Compatibility Level. Reduce if sharing broadly. 1.3 - 1.7 are supported.")
+	lossinessPtr := flag.String("l", "lossless", "Use Lossy or Lossless image compression. Lossy images are much smaller but tend to have compression artifacts.")
 	flag.Parse()
 
 	aspectRatio := *aspectRatioX / *aspectRatioY

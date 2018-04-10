@@ -37,8 +37,6 @@ func main() {
 	ValidateCompatibilityLevel(*compatibilityLevelPtr)
 	ValidateLossinessString(*lossinessPtr)
 
-
-
 	var args []string
 
 	args = append(args, "-o", OutputFileName(*pathPtr, *sizePtr))
@@ -74,7 +72,6 @@ func main() {
 		//args = append(args, "-r" + dpi)
 		//args = append(args, "-dJPEGQ=100")
 	}
-
 
 	args = append(args, "-dDownsampleColorImages=true")
 	args = append(args, "-dDownsampleGrayImages=true")
@@ -192,6 +189,7 @@ func OutputFileName(pathStr string, sizeStr string) string {
 	return outputFileName
 }
 
+// TODO: Pull out into utility file
 func Contains(vs []string, t string) bool {
 	for _, v := range vs {
 		if v == t {

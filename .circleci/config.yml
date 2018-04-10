@@ -23,7 +23,6 @@ jobs:
 
       # specify any bash command here prefixed with `run: `
       - run: ./build.sh
-      - copy:
       - store_artifacts:
           path: ./bin
-          destination: bin
+          destination: /

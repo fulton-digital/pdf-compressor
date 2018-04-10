@@ -26,4 +26,4 @@ jobs:
       - copy:
       - store_artifacts:
           path: ./bin
-          destination: /
+          destination: bin

@@ -9,6 +9,9 @@ import (
 	"strings"
 	"path"
 	"runtime"
+	"bytes"
+	"regexp"
+	"strconv"
 )
 
 func main() {
@@ -37,6 +40,8 @@ func main() {
 	lossinessPtr := flag.String("l", "lossless", "Use Lossy or Lossless image compression. Lossy images are much smaller but tend to have compression artifacts.")
 	flag.Parse()
 
+	getAspectRatioFromFile(*pathPtr, gsExecName)
+
 	aspectRatio := *aspectRatioX / *aspectRatioY
 
 	ValidatePath(*pathPtr)
@@ -58,8 +63,8 @@ func main() {
 		width := fmt.Sprintf("%d", WidthInPoints(*sizePtr, aspectRatio))
 		height := fmt.Sprintf("%d", HeightInPoints(*sizePtr, aspectRatio))
 
-		args = append(args, "-dDEVICEWIDTHPOINTS=" + width)
-		args = append(args, "-dDEVICEHEIGHTPOINTS=" + height)
+		args = append(args, "-dDEVICEWIDTHPOINTS="+width)
+		args = append(args, "-dDEVICEHEIGHTPOINTS="+height)
 		//args = append(args, "-dFIXEDMEDIA")
 		args = append(args, "-dFitPage")
 	}
@@ -84,9 +89,9 @@ func main() {
 	args = append(args, "-dDownsampleColorImages=true")
 	args = append(args, "-dDownsampleGrayImages=true")
 	args = append(args, "-dDownsampleMonoImages=true")
-	args = append(args, "-dColorImageResolution=" + dpi)
-	args = append(args, "-dGrayImageResolution=" + dpi)
-	args = append(args, "-dMonoImageResolution=" + dpi)
+	args = append(args, "-dColorImageResolution="+dpi)
+	args = append(args, "-dGrayImageResolution="+dpi)
+	args = append(args, "-dMonoImageResolution="+dpi)
 	args = append(args, "-dDetectDuplicateImages=true")
 	args = append(args, "-dColorImageDownsampleThreshold=1.0")
 	args = append(args, "-dGrayImageDownsampleThreshold=1.0")
@@ -195,6 +200,51 @@ func OutputFileName(pathStr string, sizeStr string) string {
 	outputFileName := pathStr[:cutIndex] + "-" + sizeStr + ".pdf"
 	fmt.Println(outputFileName)
 	return outputFileName
+}
+
+func getAspectRatioFromFile(pathStr string, gsExecName string) float64 {
+	var args []string
+	args = append(args, "-dNOPAUSE")
+	args = append(args, "-dBATCH")
+	args = append(args, "-dUseTrimBox")
+	args = append(args, "-sDEVICE=bbox")
+	args = append(args, "-r10")
+	args = append(args, pathStr)
+
+	cmd := exec.Command(gsExecName, args...)
+	out := bytes.Buffer{}
+	cmd.Stderr = &out
+	cmd.Run()
+
+	re := regexp.MustCompile(`%%BoundingBox: (?P<llx>-*\d+) (?P<lly>-*\d+) (?P<trx>-*\d+) (?P<try>-*\d+)`)
+
+	i := 0
+	var acc float64 = 0
+
+	for _, line := range strings.Split(strings.TrimSuffix(out.String(), "\n"), "\n") {
+		match := re.FindStringSubmatch(line)
+
+		if len(match) > 0 {
+			paramsMap := make(map[string]int)
+			for j, name := range re.SubexpNames() {
+				if j > 0 && j <= len(match) {
+					intVal, _ := strconv.Atoi(match[j])
+					paramsMap[name] = intVal
+				}
+			}
+			//fmt.Println(paramsMap)
+			pageAr := float64(float64(paramsMap["trx"] - paramsMap["llx"]) / float64(paramsMap["try"] - paramsMap["lly"]))
+			fmt.Println("Page Aspect Ratio:", pageAr)
+			i++
+			acc += pageAr
+		}
+	}
+
+	avgAr := acc / float64(i)
+
+	fmt.Println("average AR:", avgAr)
+
+	return avgAr
 }
 
 // TODO: Pull out into utility file
